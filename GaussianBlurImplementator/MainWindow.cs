@@ -6,7 +6,7 @@ namespace GaussianBlurImplementator
     public partial class MainWindow : Form
     {
         public static int ThreadsNumber = 1;
-        public static int BlurStrenght = 10;
+        public static int BlurStrenght = 1;
         public static bool CurrentCheckboxTextIsCs = true;
 
         public MainWindow()
