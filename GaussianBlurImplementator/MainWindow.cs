@@ -56,11 +56,11 @@ namespace GaussianBlurImplementator
 
             var sw = Stopwatch.StartNew();
             var result = blur.ProcessBitmap(BlurStrenght);
+            lblTime.Text = sw.ElapsedMilliseconds.ToString();
             result.Save("gaussianed.jpg", ImageFormat.Jpeg);
             result.Save("gaussianed.png", ImageFormat.Png);
             picBoxBefore.ImageLocation = txtFilename.Text;
             picBoxAfter.ImageLocation = "gaussianed.png";
-            lblTime.Text = sw.ElapsedMilliseconds.ToString();
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)

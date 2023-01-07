@@ -14,6 +14,8 @@ namespace GaussianBlurImplementator
     {
         private int _numberOfThreads = MainWindow.ThreadsNumber;
 
+        private Task[] _tasks = new Task[MainWindow.ThreadsNumber];
+
         private readonly int[] _alpha;
         private readonly int[] _red;
         private readonly int[] _green;
@@ -54,13 +56,39 @@ namespace GaussianBlurImplementator
             var changedBlue = new int[_width * _height];
             var dest = new int[_width * _height];
 
+
             Parallel.Invoke(
                 () => GaussBlur(_alpha, changedAlpha, radial),
                 () => GaussBlur(_red, changedRed, radial),
                 () => GaussBlur(_green, changedGreen, radial),
                 () => GaussBlur(_blue, changedBlue, radial));
 
-            Parallel.For(0, dest.Length, new ParallelOptions { MaxDegreeOfParallelism = (int)_numberOfThreads }, i =>
+            //GaussBlur(_alpha, changedAlpha, radial);
+            //GaussBlur(_red, changedRed, radial);
+            //GaussBlur(_green, changedGreen, radial);
+            //GaussBlur(_blue, changedBlue, radial);
+
+            //var threads = new Thread[_numberOfThreads];
+            //var lenghtForThread = dest.Length / _numberOfThreads;
+
+            //for (int i = 0; i < _numberOfThreads; i++)
+            //{
+            //    var thread = new Thread(new ThreadStart(() => UnifyColors(i * lenghtForThread, lenghtForThread, changedAlpha, changedRed, changedGreen, changedBlue, dest)));
+            //    thread.Start();
+            //    threads[i] = thread;
+            //}// color unification from down there
+
+            //for(int i = 0; i < _numberOfThreads; i++)
+            //{
+            //    threads[i].Join();
+            //}
+
+            foreach (var task in _tasks)
+            {
+                task.Wait();
+            }
+
+            Parallel.For(0, dest.Length, new ParallelOptions { MaxDegreeOfParallelism = _numberOfThreads }, i =>
             {
                 if (changedAlpha[i] > 255) changedAlpha[i] = 255;
                 if (changedRed[i] > 255) changedRed[i] = 255;
@@ -75,21 +103,6 @@ namespace GaussianBlurImplementator
                 dest[i] = (int)((uint)(changedAlpha[i] << 24) | (uint)(changedRed[i] << 16) | (uint)(changedGreen[i] << 8) | (uint)changedBlue[i]);
             });
 
-            //for(int i = 0; i < dest.Length; i++)
-            //{
-            //    if (changedAlpha[i] > 255) changedAlpha[i] = 255;
-            //    if (changedRed[i] > 255) changedRed[i] = 255;
-            //    if (changedGreen[i] > 255) changedGreen[i] = 255;
-            //    if (changedBlue[i] > 255) changedBlue[i] = 255;
-
-            //    if (changedAlpha[i] < 0) changedAlpha[i] = 0;
-            //    if (changedRed[i] < 0) changedRed[i] = 0;
-            //    if (changedGreen[i] < 0) changedGreen[i] = 0;
-            //    if (changedBlue[i] < 0) changedBlue[i] = 0;
-
-            //    dest[i] = (int)((uint)(changedAlpha[i] << 24) | (uint)(changedRed[i] << 16) | (uint)(changedGreen[i] << 8) | (uint)changedBlue[i]);
-            //}
-
             var image = new Bitmap(_width, _height);
             var rct = new Rectangle(0, 0, image.Width, image.Height);
             var bits2 = image.LockBits(rct, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
@@ -100,24 +113,27 @@ namespace GaussianBlurImplementator
 
         public void GaussBlur(int[] source, int[] destination, int radial)
         {
-            Thread[] threads = new Thread[_numberOfThreads];
+            //Thread[] threads = new Thread[_numberOfThreads];
 
             if (MainWindow.CurrentCheckboxTextIsCs)
             {
-                BlurOne blur = new BlurOne();
+                int heightForThread = _height / _numberOfThreads;
                 for (int i = 0; i < _numberOfThreads; i++)
                 {
-                    int heightForThread = _height / _numberOfThreads;
-                    int offset = (i / _numberOfThreads) * _height;
-                    Thread t = new Thread(new ThreadStart(() => blur.BlurTarget(source, destination, _width, heightForThread * i, radial, offset)));
-                    t.Start();
-                    threads[i] = t;
+                    int offset = i * (_height / _numberOfThreads);
+                    //Thread t = new Thread(new ThreadStart(() => BlurOne.BlurTarget(source, destination, _width, heightForThread * i, radial, offset)));
+                    //t.Start();
+                    //threads[i] = t;
+                    _tasks[i] = new Task(() => BlurOne.BlurTarget(source, destination, _width, heightForThread * i, radial, offset));
+                    _tasks[i].Start();
                 }
 
-                for(int i = 0; i < _numberOfThreads; i++)
-                {
-                    threads[i].Join();
-                }
+                //for (int i = 0; i < _numberOfThreads; i++)
+                //{
+                //    tasks[i].Wait();
+                //}
+
+                Task.WaitAll(_tasks);
             }
             else
             {
@@ -125,5 +141,23 @@ namespace GaussianBlurImplementator
             }
         }
 
+        private void UnifyColors(int beggining, int length, int[] changedAlpha, int[] changedRed, int[] changedGreen, int[] changedBlue, int[] dest)
+        {
+            for (int i = beggining; i < length; i++)
+            {
+                if (changedAlpha[i] > 255) changedAlpha[i] = 255;
+                if (changedRed[i] > 255) changedRed[i] = 255;
+                if (changedGreen[i] > 255) changedGreen[i] = 255;
+                if (changedBlue[i] > 255) changedBlue[i] = 255;
+
+                if (changedAlpha[i] < 0) changedAlpha[i] = 0;
+                if (changedRed[i] < 0) changedRed[i] = 0;
+                if (changedGreen[i] < 0) changedGreen[i] = 0;
+                if (changedBlue[i] < 0) changedBlue[i] = 0;
+
+                dest[i] = (int)((uint)(changedAlpha[i] << 24) | (uint)(changedRed[i] << 16) | (uint)(changedGreen[i] << 8) | (uint)changedBlue[i]);
+            }
+
+        }
     }
 }
