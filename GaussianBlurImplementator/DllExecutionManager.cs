@@ -57,16 +57,16 @@ namespace GaussianBlurImplementator
             var dest = new int[_width * _height];
 
 
-            Parallel.Invoke(
-                () => GaussBlur(_alpha, changedAlpha, radial),
-                () => GaussBlur(_red, changedRed, radial),
-                () => GaussBlur(_green, changedGreen, radial),
-                () => GaussBlur(_blue, changedBlue, radial));
+            //Parallel.Invoke(
+            //    () => GaussBlur(_alpha, changedAlpha, radial),
+            //    () => GaussBlur(_red, changedRed, radial),
+            //    () => GaussBlur(_green, changedGreen, radial),
+            //    () => GaussBlur(_blue, changedBlue, radial));
 
-            //GaussBlur(_alpha, changedAlpha, radial);
-            //GaussBlur(_red, changedRed, radial);
-            //GaussBlur(_green, changedGreen, radial);
-            //GaussBlur(_blue, changedBlue, radial);
+            GaussBlur(_alpha, changedAlpha, radial);
+            GaussBlur(_red, changedRed, radial);
+            GaussBlur(_green, changedGreen, radial);
+            GaussBlur(_blue, changedBlue, radial);
 
             //var threads = new Thread[_numberOfThreads];
             //var lenghtForThread = dest.Length / _numberOfThreads;
@@ -115,17 +115,32 @@ namespace GaussianBlurImplementator
         {
             //Thread[] threads = new Thread[_numberOfThreads];
 
+            var numberOfThreads = _numberOfThreads;
+            var width = _width;
+            var height = _height;
+
             if (MainWindow.CurrentCheckboxTextIsCs)
             {
-                int heightForThread = _height / _numberOfThreads;
-                for (int i = 0; i < _numberOfThreads; i++)
+                int heightForThread = height / numberOfThreads;
+                int remainer = height % numberOfThreads;
+
+
+                for (int i = 0; i < numberOfThreads; i++)
                 {
-                    int offset = i * (_height / _numberOfThreads);
+                    int offset = i * heightForThread;
+                    int currHeight = heightForThread * (i + 1);
                     //Thread t = new Thread(new ThreadStart(() => BlurOne.BlurTarget(source, destination, _width, heightForThread * i, radial, offset)));
                     //t.Start();
                     //threads[i] = t;
-                    _tasks[i] = new Task(() => BlurOne.BlurTarget(source, destination, _width, heightForThread * i, radial, offset));
+                    _tasks[i] = new Task(() => BlurOne.BlurTarget(source, destination, width, currHeight, radial, offset));
                     _tasks[i].Start();
+                }
+
+                if (remainer > 0)
+                {
+                    Task t = new Task(() => BlurOne.BlurTarget(source, destination, width, heightForThread * numberOfThreads + remainer, radial, heightForThread * numberOfThreads));
+                    t.Start();
+                    t.Wait();
                 }
 
                 //for (int i = 0; i < _numberOfThreads; i++)
@@ -134,6 +149,7 @@ namespace GaussianBlurImplementator
                 //}
 
                 Task.WaitAll(_tasks);
+                
             }
             else
             {

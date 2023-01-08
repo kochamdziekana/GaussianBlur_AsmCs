@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,11 +20,11 @@ namespace GaussianBlur.Blurers
                     for (var iy = i - rs; iy < i + rs + 1; iy++)
                         for (var ix = j - rs; ix < j + rs + 1; ix++)
                         {
-                            var x = (int)Math.Min(width - 1, Math.Max(0, ix));
-                            var y = (int)Math.Min(height - 1, Math.Max(0, iy));
+                            var x = Math.Min(width - 1, Math.Max(0, ix));
+                            var y = Math.Min(height - 1, Math.Max(0, iy));
                             var dsq = (ix - j) * (ix - j) + (iy - i) * (iy - i);
                             var wght = Math.Exp(-dsq / (2 * radial * radial)) / (Math.PI * 2 * radial * radial);
-                            val += (double)(source[(int)(y * width + x)] * wght);
+                            val += (double)(source[(y * width + x)] * wght);
                             wsum += wght;
                         }
                     destination[i * width + j] = (int)Math.Round(val / wsum);
