@@ -23,7 +23,7 @@ namespace GaussianBlur.Blurers
                             var x = Math.Min(width - 1, Math.Max(0, ix));
                             var y = Math.Min(height - 1, Math.Max(0, iy));
                             var dsq = (ix - j) * (ix - j) + (iy - i) * (iy - i);
-                            var wght = Math.Exp(-dsq / (2 * radial * radial)) / (Math.PI * 2 * radial * radial);
+                            var wght = (Math.Exp(-dsq / (2 * radial * radial)) / (Math.PI * 2 * radial * radial));
                             val += (double)(source[(y * width + x)] * wght);
                             wsum += wght;
                         }
