@@ -149,7 +149,6 @@
             // trackBar1
             // 
             this.trackBar1.Location = new System.Drawing.Point(26, 406);
-            this.trackBar1.Maximum = 100;
             this.trackBar1.Minimum = 1;
             this.trackBar1.Name = "trackBar1";
             this.trackBar1.Size = new System.Drawing.Size(396, 45);
@@ -277,9 +276,9 @@
             this.lblBlurStrenght.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblBlurStrenght.Location = new System.Drawing.Point(196, 369);
             this.lblBlurStrenght.Name = "lblBlurStrenght";
-            this.lblBlurStrenght.Size = new System.Drawing.Size(27, 19);
+            this.lblBlurStrenght.Size = new System.Drawing.Size(18, 19);
             this.lblBlurStrenght.TabIndex = 26;
-            this.lblBlurStrenght.Text = "10";
+            this.lblBlurStrenght.Text = "1";
             // 
             // label3
             // 
