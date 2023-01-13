@@ -108,7 +108,7 @@
             // 
             this.chBoxLanguageAsm.AutoSize = true;
             this.chBoxLanguageAsm.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.chBoxLanguageAsm.Location = new System.Drawing.Point(539, 57);
+            this.chBoxLanguageAsm.Location = new System.Drawing.Point(573, 57);
             this.chBoxLanguageAsm.Name = "chBoxLanguageAsm";
             this.chBoxLanguageAsm.Size = new System.Drawing.Size(102, 25);
             this.chBoxLanguageAsm.TabIndex = 12;
@@ -122,9 +122,9 @@
             this.chBoxLanguageCs.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.chBoxLanguageCs.Location = new System.Drawing.Point(474, 57);
             this.chBoxLanguageCs.Name = "chBoxLanguageCs";
-            this.chBoxLanguageCs.Size = new System.Drawing.Size(48, 25);
+            this.chBoxLanguageCs.Size = new System.Drawing.Size(61, 25);
             this.chBoxLanguageCs.TabIndex = 11;
-            this.chBoxLanguageCs.Text = "C#";
+            this.chBoxLanguageCs.Text = "C++";
             this.chBoxLanguageCs.UseVisualStyleBackColor = true;
             this.chBoxLanguageCs.CheckedChanged += new System.EventHandler(this.chBoxLanguage_CheckedChanged);
             // 

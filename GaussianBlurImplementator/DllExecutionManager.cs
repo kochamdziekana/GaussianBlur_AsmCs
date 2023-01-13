@@ -57,31 +57,10 @@ namespace GaussianBlurImplementator
             var dest = new int[_width * _height];
 
 
-            //Parallel.Invoke(
-            //    () => GaussBlur(_alpha, changedAlpha, radial),
-            //    () => GaussBlur(_red, changedRed, radial),
-            //    () => GaussBlur(_green, changedGreen, radial),
-            //    () => GaussBlur(_blue, changedBlue, radial));
-
             GaussBlur(_alpha, changedAlpha, radial);
             GaussBlur(_red, changedRed, radial);
             GaussBlur(_green, changedGreen, radial);
             GaussBlur(_blue, changedBlue, radial);
-
-            //var threads = new Thread[_numberOfThreads];
-            //var lenghtForThread = dest.Length / _numberOfThreads;
-
-            //for (int i = 0; i < _numberOfThreads; i++)
-            //{
-            //    var thread = new Thread(new ThreadStart(() => UnifyColors(i * lenghtForThread, lenghtForThread, changedAlpha, changedRed, changedGreen, changedBlue, dest)));
-            //    thread.Start();
-            //    threads[i] = thread;
-            //}// color unification from down there
-
-            //for(int i = 0; i < _numberOfThreads; i++)
-            //{
-            //    threads[i].Join();
-            //}
 
             foreach (var task in _tasks)
             {
@@ -113,48 +92,45 @@ namespace GaussianBlurImplementator
 
         public void GaussBlur(int[] source, int[] destination, int radial)
         {
-            //Thread[] threads = new Thread[_numberOfThreads];
-
-            var numberOfThreads = _numberOfThreads;
-            var width = _width;
-            var height = _height;
+            int heightForThread = _height / _numberOfThreads;
+            int remainer = _height % _numberOfThreads;
 
             if (MainWindow.CurrentCheckboxTextIsCs)
             {
-                int heightForThread = height / numberOfThreads;
-                int remainer = height % numberOfThreads;
-
-
-                for (int i = 0; i < numberOfThreads; i++)
+                for (int i = 0; i < _numberOfThreads; i++)
                 {
                     int offset = i * heightForThread;
                     int currHeight = heightForThread * (i + 1);
-                    //Thread t = new Thread(new ThreadStart(() => BlurOne.BlurTarget(source, destination, _width, heightForThread * i, radial, offset)));
-                    //t.Start();
-                    //threads[i] = t;
-                    _tasks[i] = new Task(() => BlurOne.BlurTarget(source, destination, width, currHeight, radial, offset));
+
+                    _tasks[i] = new Task(() => DllImporter.BlurTarget(source, destination, _width, currHeight, radial, offset));
                     _tasks[i].Start();
                 }
 
                 if (remainer > 0)
                 {
-                    Task t = new Task(() => BlurOne.BlurTarget(source, destination, width, heightForThread * numberOfThreads + remainer, radial, heightForThread * numberOfThreads));
+                    Task t = new Task(() => DllImporter.BlurTarget(source, destination, _width, heightForThread * _numberOfThreads + remainer, radial, heightForThread * _numberOfThreads));
                     t.Start();
                     t.Wait();
                 }
-
-                //for (int i = 0; i < _numberOfThreads; i++)
-                //{
-                //    tasks[i].Wait();
-                //}
-
-                Task.WaitAll(_tasks);
-                
             }
             else
             {
+                for (int i = 0; i < _numberOfThreads; i++)
+                {
+                    int offset = i * heightForThread;
+                    int currHeight = heightForThread * (i + 1);
+                    _tasks[i] = new Task(() => DllImporter.BlurOneAsm(source, destination, _width, currHeight, radial, offset));
+                    _tasks[i].Start();
+                }
 
+                if (remainer > 0)
+                {
+                    Task t = new Task(() => DllImporter.BlurOneAsm(source, destination, _width, heightForThread * _numberOfThreads + remainer, radial, heightForThread * _numberOfThreads));
+                    t.Start();
+                    t.Wait();
+                }
             }
+            Task.WaitAll(_tasks);
         }
 
         private void UnifyColors(int beggining, int length, int[] changedAlpha, int[] changedRed, int[] changedGreen, int[] changedBlue, int[] dest)
