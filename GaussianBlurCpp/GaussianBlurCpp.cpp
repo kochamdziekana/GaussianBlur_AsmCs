@@ -7,7 +7,7 @@
 extern "C" {
     function void BlurTarget(int* source, int* destination, int width, int height, int radial, int offset) {
 
-        int rs = (int)ceil(radial * 2.57);     // significant radius
+        int rs = (int)(radial * 2.57);     // significant radius
         for (int i = offset; i < height; i++)
             for (int j = 0; j < width; j++)
             {

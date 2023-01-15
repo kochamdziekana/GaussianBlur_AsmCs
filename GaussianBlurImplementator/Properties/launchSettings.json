@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GaussianBlurImplementator": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

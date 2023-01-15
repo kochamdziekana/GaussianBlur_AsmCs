@@ -12,7 +12,7 @@ namespace GaussianBlur.Blurers
         // height for one thread, offset = thread/threads * height of bmp
         public static void BlurTarget(int[] source, int[] destination, int width, int height, int radial, int offset)
         {
-            var rs = (int)Math.Ceiling(radial * 2.57);     // significant radius
+            var rs = (int)(radial * 2.57);     // significant radius
             for (var i = offset; i < height; i++)
                 for (var j = 0; j < width; j++)
                 {
