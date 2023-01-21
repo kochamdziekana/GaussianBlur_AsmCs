@@ -50,6 +50,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.lblTime = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.btnBenchmark = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picBoxAfter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picBoxBefore)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
@@ -313,11 +314,27 @@
             this.label2.Text = "Czas wykonania (ms):";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // btnBenchmark
+            // 
+            this.btnBenchmark.BackColor = System.Drawing.Color.LimeGreen;
+            this.btnBenchmark.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.btnBenchmark.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnBenchmark.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnBenchmark.Location = new System.Drawing.Point(474, 446);
+            this.btnBenchmark.Name = "btnBenchmark";
+            this.btnBenchmark.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.btnBenchmark.Size = new System.Drawing.Size(167, 54);
+            this.btnBenchmark.TabIndex = 37;
+            this.btnBenchmark.Text = "Benchmark";
+            this.btnBenchmark.UseVisualStyleBackColor = false;
+            this.btnBenchmark.Click += new System.EventHandler(this.btnBenchmark_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1104, 557);
+            this.Controls.Add(this.btnBenchmark);
             this.Controls.Add(this.trackBar1);
             this.Controls.Add(this.radioButton64);
             this.Controls.Add(this.radioButton32);
@@ -374,5 +391,6 @@
         private Label label3;
         private Label lblTime;
         private Label label2;
+        private Button btnBenchmark;
     }
 }

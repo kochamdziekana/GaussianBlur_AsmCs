@@ -111,5 +111,10 @@ namespace GaussianBlurImplementator
             BlurStrenght = trackBar1.Value;
             lblBlurStrenght.Text = trackBar1.Value.ToString();
         }
+
+        private void btnBenchmark_Click(object sender, EventArgs e)
+        {
+            BenchmarkManager.CreateBenchmark();
+        }
     }
 }

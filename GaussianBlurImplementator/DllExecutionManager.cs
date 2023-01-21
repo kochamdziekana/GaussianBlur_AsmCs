@@ -16,10 +16,10 @@ namespace GaussianBlurImplementator
 
         private Task[] _tasks = new Task[MainWindow.ThreadsNumber];
 
-        private readonly int[] _alpha;
-        private readonly int[] _red;
-        private readonly int[] _green;
-        private readonly int[] _blue;
+        private readonly byte[] _alphaBytes;
+        private readonly byte[] _redBytes;
+        private readonly byte[] _greenBytes;
+        private readonly byte[] _blueBytes;
 
         private readonly int _width;
         private readonly int _height;
@@ -34,53 +34,66 @@ namespace GaussianBlurImplementator
             _width = image.Width;
             _height = image.Height;
 
-            _alpha = new int[_width * _height];
-            _red = new int[_width * _height];
-            _green = new int[_width * _height];
-            _blue = new int[_width * _height];
+            _alphaBytes = new byte[_width * _height];
+            _redBytes = new byte[_width * _height];
+            _greenBytes = new byte[_width * _height];
+            _blueBytes = new byte[_width * _height];
 
-            Parallel.For(0, source.Length, new ParallelOptions { MaxDegreeOfParallelism = (int)_numberOfThreads }, i =>
+            int lenghtForThread = source.Length / _numberOfThreads;
+            int lenghtForThreadRemaining = source.Length % _numberOfThreads;
+
+            for (int i = 0; i < _numberOfThreads; i++)
             {
-                _alpha[i] = (int)((source[i] & 0xff000000) >> 24);
-                _red[i] = (source[i] & 0xff0000) >> 16;
-                _green[i] = (source[i] & 0x00ff00) >> 8;
-                _blue[i] = (source[i] & 0x0000ff);
-            });
+                int currOffset = lenghtForThread * i;
+                int currLenght = lenghtForThread * (i + 1);
+                _tasks[i] = new Task(() => GetColorsFromSource(source, currOffset, currLenght));
+                _tasks[i].Start();
+            }
+
+            if(lenghtForThreadRemaining > 0)
+            {
+                GetColorsFromSource(source, source.Length - lenghtForThreadRemaining, source.Length);
+            }
+
+            Task.WaitAll(_tasks);
+
         }
 
         public Bitmap ProcessBitmap(int radial)
         {
-            var changedAlpha = new int[_width * _height];
-            var changedRed = new int[_width * _height];
-            var changedGreen = new int[_width * _height];
-            var changedBlue = new int[_width * _height];
+
             var dest = new int[_width * _height];
 
+            var changedAlphaChars = new byte[_width * _height];
+            var changedRedChars = new byte[_width * _height];
+            var changedGreenChars = new byte[_width * _height];
+            var changedBlueChars = new byte[_width * _height];
 
-            GaussBlur(_alpha, changedAlpha, radial);
-            GaussBlur(_red, changedRed, radial);
-            GaussBlur(_green, changedGreen, radial);
-            GaussBlur(_blue, changedBlue, radial);
 
-            foreach (var task in _tasks)
+            GaussBlur(_alphaBytes, changedAlphaChars, radial);
+            GaussBlur(_redBytes, changedRedChars, radial);
+            GaussBlur(_greenBytes, changedGreenChars, radial);
+            GaussBlur(_blueBytes, changedBlueChars, radial);
+
+
+            int lenghtForThread = dest.Length / _numberOfThreads;
+            int lenghtForThreadRemaining = dest.Length % _numberOfThreads;
+            _tasks = new Task[MainWindow.ThreadsNumber];
+
+            for(int i = 0; i < _numberOfThreads; i++)
             {
-                task.Wait();
+                int currOffset = lenghtForThread * i;
+                int currLenght = lenghtForThread * (i + 1);
+                _tasks[i] = new Task(() => FillColorsToDestination(dest, currOffset, currLenght, changedAlphaChars, changedRedChars, changedGreenChars, changedBlueChars));
+                _tasks[i].Start();
             }
 
-            Parallel.For(0, dest.Length, new ParallelOptions { MaxDegreeOfParallelism = _numberOfThreads }, i =>
+            if(lenghtForThreadRemaining > 0)
             {
-                if (changedAlpha[i] > 255) changedAlpha[i] = 255;
-                if (changedRed[i] > 255) changedRed[i] = 255;
-                if (changedGreen[i] > 255) changedGreen[i] = 255;
-                if (changedBlue[i] > 255) changedBlue[i] = 255;
+                FillColorsToDestination(dest, dest.Length - lenghtForThreadRemaining, dest.Length, changedAlphaChars, changedRedChars, changedGreenChars, changedBlueChars);
+            }
 
-                if (changedAlpha[i] < 0) changedAlpha[i] = 0;
-                if (changedRed[i] < 0) changedRed[i] = 0;
-                if (changedGreen[i] < 0) changedGreen[i] = 0;
-                if (changedBlue[i] < 0) changedBlue[i] = 0;
-
-                dest[i] = (int)((uint)(changedAlpha[i] << 24) | (uint)(changedRed[i] << 16) | (uint)(changedGreen[i] << 8) | (uint)changedBlue[i]);
-            });
+            Task.WaitAll(_tasks);
 
             var image = new Bitmap(_width, _height);
             var rct = new Rectangle(0, 0, image.Width, image.Height);
@@ -90,7 +103,7 @@ namespace GaussianBlurImplementator
             return image;
         }
 
-        public void GaussBlur(int[] source, int[] destination, int radial)
+        public void GaussBlur(byte[] source, byte[] destination, int radial)
         {
             int heightForThread = _height / _numberOfThreads;
             int remainer = _height % _numberOfThreads;
@@ -133,23 +146,23 @@ namespace GaussianBlurImplementator
             Task.WaitAll(_tasks);
         }
 
-        private void UnifyColors(int beggining, int length, int[] changedAlpha, int[] changedRed, int[] changedGreen, int[] changedBlue, int[] dest)
+        private void FillColorsToDestination(int[] dest, int offset, int lenght, byte[] alphas, byte[]reds, byte[] greens, byte[] blues)
         {
-            for (int i = beggining; i < length; i++)
+            for(int i = offset; i < lenght; i++)
             {
-                if (changedAlpha[i] > 255) changedAlpha[i] = 255;
-                if (changedRed[i] > 255) changedRed[i] = 255;
-                if (changedGreen[i] > 255) changedGreen[i] = 255;
-                if (changedBlue[i] > 255) changedBlue[i] = 255;
-
-                if (changedAlpha[i] < 0) changedAlpha[i] = 0;
-                if (changedRed[i] < 0) changedRed[i] = 0;
-                if (changedGreen[i] < 0) changedGreen[i] = 0;
-                if (changedBlue[i] < 0) changedBlue[i] = 0;
-
-                dest[i] = (int)((uint)(changedAlpha[i] << 24) | (uint)(changedRed[i] << 16) | (uint)(changedGreen[i] << 8) | (uint)changedBlue[i]);
+                dest[i] = (int)((uint)(alphas[i] << 24) | (uint)(reds[i] << 16) | (uint)(greens[i] << 8) | (uint)blues[i]);
             }
+        }
 
+        private void GetColorsFromSource(int[] source, int offset, int lenght)
+        {
+            for (int i = offset; i < lenght; i++)
+            {
+                _alphaBytes[i] = (byte)((source[i] & 0xff000000) >> 24);
+                _redBytes[i] = (byte)((source[i] & 0xff0000) >> 16);
+                _greenBytes[i] = (byte)((source[i] & 0x00ff00) >> 8);
+                _blueBytes[i] = (byte)(source[i] & 0x0000ff);
+            }
         }
     }
 }

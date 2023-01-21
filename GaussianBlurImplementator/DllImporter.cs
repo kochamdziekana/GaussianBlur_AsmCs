@@ -11,17 +11,17 @@ namespace GaussianBlurImplementator
     {
 #if DEBUG
         [DllImport("D:\\GaussianBlurProject\\GaussianBlur\\x64\\Debug\\GaussianBlurAsm.dll")]
-        public static extern int BlurOneAsm(int[] source, int[] destination, int width, int height, int radial, int offset);
+        public static extern int BlurOneAsm(byte[] source, byte[] destination, int width, int height, int radial, int offset);
         
         [DllImport("D:\\GaussianBlurProject\\GaussianBlur\\x64\\Debug\\GaussianBlurCpp.dll")]
-        public static extern int BlurTarget(int[] source, int[] destination, int width, int height, int radial, int offset);
+        public static extern int BlurTarget(byte[] source, byte[] destination, int width, int height, int radial, int offset);
 
 #else
         [DllImport("D:\\GaussianBlurProject\\GaussianBlur\\x64\\Release\\GaussianBlurAsm.dll")]
-        public static extern void BlurOneAsm(int[] source, int[] destination, int width, int height, int radial, int offset);
+        public static extern void BlurOneAsm(byte[] source, byte[] destination, int width, int height, int radial, int offset);
 
         [DllImport("D:\\GaussianBlurProject\\GaussianBlur\\x64\\Release\\GaussianBlurCpp.dll",CallingConvention=CallingConvention.Cdecl)]
-        public static extern void BlurTarget(int[] source, int[] destination, int width, int height, int radial, int offset);
+        public static extern void BlurTarget(byte[] source, byte[] destination, int width, int height, int radial, int offset);
 
 #endif
     }
