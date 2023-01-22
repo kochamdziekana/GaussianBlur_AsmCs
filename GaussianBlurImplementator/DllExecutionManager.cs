@@ -124,17 +124,18 @@ namespace GaussianBlurImplementator
 
                     //DllImporter.BlurTargetTwoIntrinsics(source, destination, _width, currHeight, offset, kernel, kernelSum, 4);
 
-                    //_tasks[i] = new Task(() => DllImporter.BlurTarget(source, destination, _width, currHeight, radial, offset));
-                    _tasks[i] = new Task(() => DllImporter.BlurTargetTwoIntrinsics(source, destination, _width, currHeight, offset, kernel, kernelSum, 4));
+                    _tasks[i] = new Task(() => DllImporter.BlurTarget(source, destination, _width, currHeight, radial, offset));
+                    //_tasks[i] = new Task(() => DllImporter.BlurTargetTwoIntrinsics(source, destination, _width, currHeight, offset, kernel, kernelSum, 4));
                     _tasks[i].Start();
                 }
 
                 if (remainer > 0)
                 {
-                    DllImporter.BlurTargetTwoIntrinsics(source, destination, _width, _height, _height - remainer, kernel, kernelSum, 4);
+                    //DllImporter.BlurTargetTwoIntrinsics(source, destination, _width, _height, _height - remainer, kernel, kernelSum, 4);
                     //Task t = new Task(() => DllImporter.BlurTarget(source, destination, _width, heightForThread * _numberOfThreads + remainer, radial, heightForThread * _numberOfThreads));
                     //t.Start();
                     //t.Wait();
+                    DllImporter.BlurTarget(source, destination, _width, heightForThread * _numberOfThreads + remainer, radial, heightForThread * _numberOfThreads);
                 }
 
 
@@ -152,9 +153,10 @@ namespace GaussianBlurImplementator
 
                 if (remainer > 0)
                 {
-                    Task t = new Task(() => DllImporter.BlurOneAsm(source, destination, _width, heightForThread * _numberOfThreads + remainer, radial, heightForThread * _numberOfThreads));
-                    t.Start();
-                    t.Wait();
+                    //Task t = new Task(() => DllImporter.BlurOneAsm(source, destination, _width, heightForThread * _numberOfThreads + remainer, radial, heightForThread * _numberOfThreads));
+                    //t.Start();
+                    //t.Wait();
+                    DllImporter.BlurOneAsm(source, destination, _width, heightForThread * _numberOfThreads + remainer, radial, heightForThread * _numberOfThreads);
                 }
             }
             Task.WaitAll(_tasks);

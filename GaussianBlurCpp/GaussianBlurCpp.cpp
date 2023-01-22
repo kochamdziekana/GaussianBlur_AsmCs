@@ -61,7 +61,7 @@ extern "C" {
 
     function void BlurTargetTwoIntrinsics(unsigned char* image, unsigned char* output,
         unsigned int width, unsigned int height, int offset, float* kernel, float kernelSum, unsigned int kernelSize) { // kernel is constant so kernelSum also is
-        for (int j = offset; j < height - kernelSize; ++j) {
+        for (int j = offset; j < height; ++j) {
             for (int i = 0; i < width - kernelSize; ++i) {
                 float buffer = 0;
                 for (int y = 0; y < kernelSize; y++) {
@@ -78,7 +78,8 @@ extern "C" {
                         __m128 sum = _mm_hadd_ps(result, result);
                         sum = _mm_hadd_ps(sum, sum);
 
-                        buffer += _mm_cvtss_f32(_mm_shuffle_ps(sum, sum, _MM_SHUFFLE(0, 0, 0, 2)));
+                        //buffer += _mm_cvtss_f32(_mm_shuffle_ps(sum, sum, _MM_SHUFFLE(0, 0, 0, 2)));
+                        buffer += *(float*)(&sum);
                     }
                 }
                 output[j * width + i] = buffer / kernelSum; // buffer/kernelSum
