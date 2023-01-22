@@ -14,7 +14,10 @@ namespace GaussianBlurImplementator
         public static extern int BlurOneAsm(byte[] source, byte[] destination, int width, int height, int radial, int offset);
         
         [DllImport("D:\\GaussianBlurProject\\GaussianBlur\\x64\\Debug\\GaussianBlurCpp.dll")]
-        public static extern int BlurTarget(byte[] source, byte[] destination, int width, int height, int radial, int offset);
+        public static extern void BlurTarget(byte[] source, byte[] destination, int width, int height, int radial, int offset);
+
+        [DllImport("D:\\GaussianBlurProject\\GaussianBlur\\x64\\Debug\\GaussianBlurCpp.dll")]
+        public static extern void BlurTargetTwoIntrinsics(byte[] image, byte[] output, int width, int height,int offset, float[] kernel, float kernelSum, int kernelSize);
 
 #else
         [DllImport("D:\\GaussianBlurProject\\GaussianBlur\\x64\\Release\\GaussianBlurAsm.dll")]

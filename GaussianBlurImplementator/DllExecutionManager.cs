@@ -108,6 +108,13 @@ namespace GaussianBlurImplementator
             int heightForThread = _height / _numberOfThreads;
             int remainer = _height % _numberOfThreads;
 
+            float[] kernel = { 1, 2, 2, 1,
+                                   2, 6, 6, 2,
+                                   2, 6, 6, 2,
+                                   1, 2, 2, 1};
+
+            float kernelSum = 44.0f;
+
             if (MainWindow.CurrentCheckboxTextIsCs)
             {
                 for (int i = 0; i < _numberOfThreads; i++)
@@ -115,16 +122,23 @@ namespace GaussianBlurImplementator
                     int offset = i * heightForThread;
                     int currHeight = heightForThread * (i + 1);
 
-                    _tasks[i] = new Task(() => DllImporter.BlurTarget(source, destination, _width, currHeight, radial, offset));
+                    //DllImporter.BlurTargetTwoIntrinsics(source, destination, _width, currHeight, offset, kernel, kernelSum, 4);
+
+                    //_tasks[i] = new Task(() => DllImporter.BlurTarget(source, destination, _width, currHeight, radial, offset));
+                    _tasks[i] = new Task(() => DllImporter.BlurTargetTwoIntrinsics(source, destination, _width, currHeight, offset, kernel, kernelSum, 4));
                     _tasks[i].Start();
                 }
 
                 if (remainer > 0)
                 {
-                    Task t = new Task(() => DllImporter.BlurTarget(source, destination, _width, heightForThread * _numberOfThreads + remainer, radial, heightForThread * _numberOfThreads));
-                    t.Start();
-                    t.Wait();
+                    DllImporter.BlurTargetTwoIntrinsics(source, destination, _width, _height, _height - remainer, kernel, kernelSum, 4);
+                    //Task t = new Task(() => DllImporter.BlurTarget(source, destination, _width, heightForThread * _numberOfThreads + remainer, radial, heightForThread * _numberOfThreads));
+                    //t.Start();
+                    //t.Wait();
                 }
+
+
+
             }
             else
             {

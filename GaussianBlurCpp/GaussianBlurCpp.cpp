@@ -14,6 +14,16 @@ extern "C" {
                              1, 2, 1 };
 
         double wsum = 16.0;
+        /*
+        __m128i kernelOne;
+        __m128i kernelTwo;
+        __m128i kernelThree;
+        
+        for (int i = 0; i < 3; i++) {
+            kernelOne = _mm_insert_epi8(kernelOne, kernel[0][i], i);
+            kernelTwo = _mm_insert_epi8(kernelOne, kernel[1][i], i);
+            kernelThree = _mm_insert_epi8(kernelOne, kernel[2][i], i);
+        }*/
 
         //int rs = (int)(radial * 2.57);     // significant radius
         for (int i = offset; i < height; i++)
@@ -43,29 +53,39 @@ extern "C" {
                     }                                                        // i - 1 - i + 1 = 0 -> 1 -> 2, j - 1 - j + 1 = 0 -> 1 -> 2
                 }
 
+                val = 0;
+
                 destination[i * width + j] = (unsigned char)round(val / wsum);
             }
     }
 
-    function void BlurTargetTwo(unsigned char* image, unsigned char* output,
-        unsigned int width, unsigned int height, float* kernel, float kernelSum,
-        unsigned int kernelSize) { // kernel is constant so kernelSum also is
-        for (int j = 0; j < height - kernelSize; ++j) {
+    function void BlurTargetTwoIntrinsics(unsigned char* image, unsigned char* output,
+        unsigned int width, unsigned int height, int offset, float* kernel, float kernelSum, unsigned int kernelSize) { // kernel is constant so kernelSum also is
+        for (int j = offset; j < height - kernelSize; ++j) {
             for (int i = 0; i < width - kernelSize; ++i) {
                 float buffer = 0;
-                for (int y = 0; y < kernelSize; ++y) {
+                for (int y = 0; y < kernelSize; y++) {
                     for (int x = 0; x < kernelSize; x += 4) {
 
-                        //__m64 pixels = *(__m64*)(image + (j + y) * width + i + x);
-                        //__m128 imageRow = _mm_cvtpi8_ps(pixels);
-                        //__m128 kernelRow = _mm_load_ps(kernel + y * kernelSize + i);
-                        //__m128 result = _mm_mul_ps(imageRow, kernelRow);
+                        UINT32 pixels = *(UINT32*)(image + (j + y) * width + i + x); // x x x x 
+                        __m128i convertedPixels = _mm_set1_epi32(0);
+                        convertedPixels = _mm_insert_epi32(convertedPixels, pixels, 0);
+                        __m128i pixelVector = _mm_cvtepu8_epi32(convertedPixels);
+                        __m128 convertedIntegers = _mm_cvtepi32_ps(pixelVector);
+                        __m128 kernelRow = _mm_load_ps(kernel + y * kernelSize + x);
+                        __m128 result = _mm_mul_ps(convertedIntegers, kernelRow);
 
-                        buffer += image[(j + y) * width + i + x] * kernel[y * kernelSize + x];
+                        __m128 sum = _mm_hadd_ps(result, result);
+                        sum = _mm_hadd_ps(sum, sum);
+
+                        buffer += _mm_cvtss_f32(_mm_shuffle_ps(sum, sum, _MM_SHUFFLE(0, 0, 0, 2)));
                     }
                 }
                 output[j * width + i] = buffer / kernelSum; // buffer/kernelSum
             }
+            // x x x
+            // x x x
+            // x x x
         }
     }
 }
