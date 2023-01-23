@@ -7,55 +7,42 @@
 
 #define function _declspec(dllexport)
 extern "C" {
-    function void BlurTarget(unsigned char* source, unsigned char* destination, int width, int height, int radial, int offset) {
+    function void BlurTarget(unsigned char* source, unsigned char* destination, int width, int height, int offset) {
 
         int kernel[3][3] = { 1, 2, 1,
                              2, 4, 2,
                              1, 2, 1 };
-
-        double wsum = 16.0;
-        /*
-        __m128i kernelOne;
-        __m128i kernelTwo;
-        __m128i kernelThree;
         
-        for (int i = 0; i < 3; i++) {
-            kernelOne = _mm_insert_epi8(kernelOne, kernel[0][i], i);
-            kernelTwo = _mm_insert_epi8(kernelOne, kernel[1][i], i);
-            kernelThree = _mm_insert_epi8(kernelOne, kernel[2][i], i);
-        }*/
 
-        //int rs = (int)(radial * 2.57);     // significant radius
         for (int i = offset; i < height; i++)
             for (int j = 0; j < width; j++)
             {
-                double val = 0;//, wsum = 0;
-                /*for (int iy = i - 1; iy < i + 1 + 1; iy++)
-                {
-                    for (int ix = j - 1; ix < j + 1 + 1; ix++)
-                    {
-                        int x = min(width - 1, max(0, ix));
-                        int y = min(height - 1, max(0, iy));
-                        int dsq = (ix - j) * (ix - j) + (iy - i) * (iy - i);
-                        double wght = (exp(-dsq / (2 * radial * radial)) / (M_PI * 2 * radial * radial));
-                        val += (double)(source[(y * width + x)] * wght);
-                        wsum += wght;
-                    }
-                }*/
-
-                val = 0;
+                double val = 0;
                 for (int iy = i - 1; iy < i + 2; iy++) {
+                    //int y = min(height - 1, max(0, iy));
                     for (int ix = j - 1; ix < j + 2; ix++) {
-                        int x = min(width - 1, max(0, ix));
-                        int y = min(height - 1, max(0, iy));
+                        //int x = min(width - 1, max(0, ix));
+                        int x = 0;
+                        if (ix > 0) {
+                            x = ix;
+                        }
+                        if (width - 1 < x) {
+                            x = width - 1;
+                        }
 
-                        val += (double)(((int)source[y * width + x]) * (int)kernel[ix - j + 1][iy - i + 1]); // weight = kernel[a][b], val = sum(weight * source[y * current + x])
+
+                        int y = 0;
+                        if (iy > 0) {
+                            y = iy;
+                        }
+                        if (height - 1 < y) {
+                            y = height - 1;
+                        }
+                        val += (double)(((int)source[y * width + x]) * kernel[ix - j + 1][iy - i + 1]); // weight = kernel[a][b], val = sum(weight * source[y * current + x])
                     }                                                        // i - 1 - i + 1 = 0 -> 1 -> 2, j - 1 - j + 1 = 0 -> 1 -> 2
                 }
 
-                val = 0;
-
-                destination[i * width + j] = (unsigned char)round(val / wsum);
+                destination[i * width + j] = (unsigned char)((int)val >> 4);
             }
     }
 
