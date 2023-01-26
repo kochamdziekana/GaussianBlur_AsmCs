@@ -59,7 +59,7 @@ namespace GaussianBlurImplementator
 
         }
 
-        public Bitmap ProcessBitmap(int radial)
+        public Bitmap ProcessBitmap()
         {
 
             var dest = new int[_width * _height];
@@ -70,10 +70,10 @@ namespace GaussianBlurImplementator
             var changedBlueChars = new byte[_width * _height];
 
 
-            GaussBlur(_alphaBytes, changedAlphaChars, radial);
-            GaussBlur(_redBytes, changedRedChars, radial);
-            GaussBlur(_greenBytes, changedGreenChars, radial);
-            GaussBlur(_blueBytes, changedBlueChars, radial);
+            GaussBlur(_alphaBytes, changedAlphaChars);
+            GaussBlur(_redBytes, changedRedChars);
+            GaussBlur(_greenBytes, changedGreenChars);
+            GaussBlur(_blueBytes, changedBlueChars);
 
 
             int lenghtForThread = dest.Length / _numberOfThreads;
@@ -103,17 +103,11 @@ namespace GaussianBlurImplementator
             return image;
         }
 
-        public void GaussBlur(byte[] source, byte[] destination, int radial)
+        public void GaussBlur(byte[] source, byte[] destination)
         {
             int heightForThread = _height / _numberOfThreads;
             int remainer = _height % _numberOfThreads;
 
-            float[] kernel = { 1, 2, 2, 1,
-                                   2, 6, 6, 2,
-                                   2, 6, 6, 2,
-                                   1, 2, 2, 1};
-
-            float kernelSum = 44.0f;
 
             if (MainWindow.CurrentCheckboxTextIsCs)
             {

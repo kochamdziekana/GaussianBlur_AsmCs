@@ -16,6 +16,21 @@ Begin_blur:
         mov     DWORD PTR [rsp+56], 1       ; set kernel value on stack
         mov     DWORD PTR [rsp+60], 2       ; set kernel value on stack
         mov     DWORD PTR [rsp+64], 1       ; set kernel value on stack
+        mov     DWORD PTR [rsp+132], 0
+        mov     DWORD PTR [rsp+136], 0
+        mov     DWORD PTR [rsp+140], 0
+        pinsrd  xmm0, DWORD PTR [rsp+32], 0
+        pinsrd  xmm0, DWORD PTR [rsp+36], 1
+        pinsrd  xmm0, DWORD PTR [rsp+40], 2
+        pinsrd  xmm0, DWORD PTR [rsp+132], 3 ; load three xmms 
+        pinsrd  xmm1, DWORD PTR [rsp+44], 0
+        pinsrd  xmm1, DWORD PTR [rsp+48], 1
+        pinsrd  xmm1, DWORD PTR [rsp+52], 2
+        pinsrd  xmm1, DWORD PTR [rsp+136], 3
+        pinsrd  xmm2, DWORD PTR [rsp+56], 0
+        pinsrd  xmm2, DWORD PTR [rsp+60], 1
+        pinsrd  xmm2, DWORD PTR [rsp+54], 2
+        pinsrd  xmm2, DWORD PTR [rsp+140], 3
         mov     eax, DWORD PTR [rsp+128]    ; eax <- offset
         mov     DWORD PTR [rsp], eax        
         jmp     SHORT Compare_i_loop
@@ -24,7 +39,7 @@ Increment_i_loop:
         inc     eax                         ; increment i i++
         mov     DWORD PTR [rsp], eax        ; load incremented on stack
 Compare_i_loop:
-        mov     eax, r9d    ; eax <- height
+        mov     eax, r9d                    ; eax <- height
         cmp     DWORD PTR [rsp], eax        ; height == i
         jge     Finish                      ; if height > i -> go to end
         mov     DWORD PTR [rsp+4], 0        ; j = 0
@@ -45,11 +60,11 @@ Compare_j_loop:
         jmp     SHORT Compare_iy_loop
 Increment_iy:
         mov     eax, DWORD PTR [rsp+12]     ; eax <- iy
-        inc     eax ; iy++
+        inc     eax                         ; iy++
         mov     DWORD PTR [rsp+12], eax     ; iy <- eax
 Compare_iy_loop:
         mov     eax, DWORD PTR [rsp]        ; eax <- i
-        add     eax, 2 ; i += 2
+        add     eax, 2                      ; i += 2
         cmp     DWORD PTR [rsp+12], eax     ; iy == i 
         jge     Set_pixel_value             ; if iy < i + 2 -> add value divided by 
         mov     eax, DWORD PTR [rsp+4]      ; eax <- j
@@ -110,10 +125,10 @@ Add_to_sum_of_values:
         inc     edx                         ; -1 + 1 .. 0 + 1 .. 1 + 1
         movsxd  rdx, edx                    ; rdx <- edx
         imul    eax, DWORD PTR [rcx+rdx*4]  ; 
-        cvtsi2sd xmm0, eax                  ; cast the value to double
-        movsd   xmm1, QWORD PTR [rsp+24]    ; xmm1 <- current sum
-        addsd   xmm1, xmm0                  ; xmm1 + xmm0 = current sum + value added in this iteration             
-        movsd   QWORD PTR [rsp+24], xmm1    ; sum <- xmm1
+        cvtsi2sd xmm4, eax                  ; cast the value to double
+        movsd   xmm5, QWORD PTR [rsp+24]    ; xmm1 <- current sum
+        addsd   xmm5, xmm4                  ; xmm1 + xmm0 = current sum + value added in this iteration             
+        movsd   QWORD PTR [rsp+24], xmm5    ; sum <- xmm1
         jmp     Increment_ix
 Set_pixel_value:
         cvttsd2si rax, QWORD PTR [rsp+24]   ; convert sum to an integer

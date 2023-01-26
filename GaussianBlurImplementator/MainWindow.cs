@@ -6,7 +6,6 @@ namespace GaussianBlurImplementator
     public partial class MainWindow : Form
     {
         public static int ThreadsNumber = 1;
-        public static int BlurStrenght = 1;
         public static bool CurrentCheckboxTextIsCs = true;
 
         public MainWindow()
@@ -55,7 +54,7 @@ namespace GaussianBlurImplementator
             var blur = new DllExecutionManager(image as Bitmap);
 
             var sw = Stopwatch.StartNew();
-            var result = blur.ProcessBitmap(BlurStrenght);
+            var result = blur.ProcessBitmap();
             lblTime.Text = sw.ElapsedMilliseconds.ToString();
             result.Save("gaussianed.jpg", ImageFormat.Jpeg);
             result.Save("gaussianed.png", ImageFormat.Png);
@@ -106,11 +105,6 @@ namespace GaussianBlurImplementator
         }
 
 
-        private void trackBar1_Scroll(object sender, EventArgs e)
-        {
-            BlurStrenght = trackBar1.Value;
-            lblBlurStrenght.Text = trackBar1.Value.ToString();
-        }
 
         private void btnBenchmark_Click(object sender, EventArgs e)
         {

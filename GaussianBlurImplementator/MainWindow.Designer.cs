@@ -36,7 +36,6 @@
             this.chBoxLanguageCs = new System.Windows.Forms.CheckBox();
             this.picBoxAfter = new System.Windows.Forms.PictureBox();
             this.picBoxBefore = new System.Windows.Forms.PictureBox();
-            this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.radioButton64 = new System.Windows.Forms.RadioButton();
             this.radioButton32 = new System.Windows.Forms.RadioButton();
             this.radioButton16 = new System.Windows.Forms.RadioButton();
@@ -45,15 +44,12 @@
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.lblThreads = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.lblBlurStrenght = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.lblTime = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.btnBenchmark = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picBoxAfter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picBoxBefore)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -147,21 +143,11 @@
             this.picBoxBefore.TabIndex = 16;
             this.picBoxBefore.TabStop = false;
             // 
-            // trackBar1
-            // 
-            this.trackBar1.Location = new System.Drawing.Point(26, 406);
-            this.trackBar1.Minimum = 1;
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size(396, 45);
-            this.trackBar1.TabIndex = 36;
-            this.trackBar1.Value = 1;
-            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
-            // 
             // radioButton64
             // 
             this.radioButton64.AutoSize = true;
             this.radioButton64.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.radioButton64.Location = new System.Drawing.Point(931, 406);
+            this.radioButton64.Location = new System.Drawing.Point(666, 454);
             this.radioButton64.Name = "radioButton64";
             this.radioButton64.Size = new System.Drawing.Size(36, 23);
             this.radioButton64.TabIndex = 35;
@@ -174,7 +160,7 @@
             // 
             this.radioButton32.AutoSize = true;
             this.radioButton32.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.radioButton32.Location = new System.Drawing.Point(889, 406);
+            this.radioButton32.Location = new System.Drawing.Point(624, 454);
             this.radioButton32.Name = "radioButton32";
             this.radioButton32.Size = new System.Drawing.Size(36, 23);
             this.radioButton32.TabIndex = 34;
@@ -187,7 +173,7 @@
             // 
             this.radioButton16.AutoSize = true;
             this.radioButton16.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.radioButton16.Location = new System.Drawing.Point(849, 406);
+            this.radioButton16.Location = new System.Drawing.Point(584, 454);
             this.radioButton16.Name = "radioButton16";
             this.radioButton16.Size = new System.Drawing.Size(36, 23);
             this.radioButton16.TabIndex = 33;
@@ -200,7 +186,7 @@
             // 
             this.radioButton8.AutoSize = true;
             this.radioButton8.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.radioButton8.Location = new System.Drawing.Point(807, 406);
+            this.radioButton8.Location = new System.Drawing.Point(542, 454);
             this.radioButton8.Name = "radioButton8";
             this.radioButton8.Size = new System.Drawing.Size(36, 23);
             this.radioButton8.TabIndex = 32;
@@ -213,7 +199,7 @@
             // 
             this.radioButton4.AutoSize = true;
             this.radioButton4.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.radioButton4.Location = new System.Drawing.Point(765, 406);
+            this.radioButton4.Location = new System.Drawing.Point(500, 454);
             this.radioButton4.Name = "radioButton4";
             this.radioButton4.Size = new System.Drawing.Size(36, 23);
             this.radioButton4.TabIndex = 31;
@@ -226,7 +212,7 @@
             // 
             this.radioButton2.AutoSize = true;
             this.radioButton2.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.radioButton2.Location = new System.Drawing.Point(723, 406);
+            this.radioButton2.Location = new System.Drawing.Point(458, 454);
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.Size = new System.Drawing.Size(36, 23);
             this.radioButton2.TabIndex = 30;
@@ -239,7 +225,7 @@
             // 
             this.radioButton1.AutoSize = true;
             this.radioButton1.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.radioButton1.Location = new System.Drawing.Point(681, 406);
+            this.radioButton1.Location = new System.Drawing.Point(416, 454);
             this.radioButton1.Name = "radioButton1";
             this.radioButton1.Size = new System.Drawing.Size(36, 23);
             this.radioButton1.TabIndex = 29;
@@ -253,39 +239,17 @@
             this.lblThreads.AutoSize = true;
             this.lblThreads.BackColor = System.Drawing.Color.LightSkyBlue;
             this.lblThreads.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblThreads.Location = new System.Drawing.Point(907, 368);
+            this.lblThreads.Location = new System.Drawing.Point(642, 416);
             this.lblThreads.Name = "lblThreads";
             this.lblThreads.Size = new System.Drawing.Size(18, 19);
             this.lblThreads.TabIndex = 28;
             this.lblThreads.Text = "4";
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label5.Location = new System.Drawing.Point(26, 362);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(164, 25);
-            this.label5.TabIndex = 27;
-            this.label5.Text = "Moc rozmycia:";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblBlurStrenght
-            // 
-            this.lblBlurStrenght.AutoSize = true;
-            this.lblBlurStrenght.BackColor = System.Drawing.Color.LightSkyBlue;
-            this.lblBlurStrenght.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblBlurStrenght.Location = new System.Drawing.Point(196, 369);
-            this.lblBlurStrenght.Name = "lblBlurStrenght";
-            this.lblBlurStrenght.Size = new System.Drawing.Size(18, 19);
-            this.lblBlurStrenght.TabIndex = 26;
-            this.lblBlurStrenght.Text = "1";
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(681, 363);
+            this.label3.Location = new System.Drawing.Point(416, 411);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(163, 25);
             this.label3.TabIndex = 25;
@@ -320,7 +284,7 @@
             this.btnBenchmark.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.btnBenchmark.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.btnBenchmark.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnBenchmark.Location = new System.Drawing.Point(474, 446);
+            this.btnBenchmark.Location = new System.Drawing.Point(474, 491);
             this.btnBenchmark.Name = "btnBenchmark";
             this.btnBenchmark.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.btnBenchmark.Size = new System.Drawing.Size(167, 54);
@@ -335,7 +299,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1104, 557);
             this.Controls.Add(this.btnBenchmark);
-            this.Controls.Add(this.trackBar1);
             this.Controls.Add(this.radioButton64);
             this.Controls.Add(this.radioButton32);
             this.Controls.Add(this.radioButton16);
@@ -344,8 +307,6 @@
             this.Controls.Add(this.radioButton2);
             this.Controls.Add(this.radioButton1);
             this.Controls.Add(this.lblThreads);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.lblBlurStrenght);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.lblTime);
             this.Controls.Add(this.label2);
@@ -361,7 +322,6 @@
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.picBoxAfter)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picBoxBefore)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -377,7 +337,6 @@
         private CheckBox chBoxLanguageCs;
         private PictureBox picBoxAfter;
         private PictureBox picBoxBefore;
-        private TrackBar trackBar1;
         private RadioButton radioButton64;
         private RadioButton radioButton32;
         private RadioButton radioButton16;
@@ -386,8 +345,6 @@
         private RadioButton radioButton2;
         private RadioButton radioButton1;
         private Label lblThreads;
-        private Label label5;
-        private Label lblBlurStrenght;
         private Label label3;
         private Label lblTime;
         private Label label2;

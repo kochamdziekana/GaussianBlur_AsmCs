@@ -23,6 +23,13 @@ extern "C" {
             {
                 double val = 0;
                 for (int iy = i - 1; iy < i + 2; iy++) {
+                    int y = 0;
+                    if (iy > 0) {
+                        y = iy;
+                    }
+                    if (height - 1 < y) {
+                        y = height - 1;
+                    }
                     //int y = min(height - 1, max(0, iy));
                     for (int ix = j - 1; ix < j + 2; ix++) {
                         //int x = min(width - 1, max(0, ix));
@@ -37,13 +44,6 @@ extern "C" {
                         // v2 = (source[y * width + x], source[y * width + x + 1], source[y * width + x + 2], 0) y += 1
                         // v3 = (source[y * width + x], source[y * width + x + 1], source[y * width + x + 2], 0) y += 2
 
-                        int y = 0;
-                        if (iy > 0) {
-                            y = iy;
-                        }
-                        if (height - 1 < y) {
-                            y = height - 1;
-                        }
                         val += (double)(((int)source[y * width + x]) * kernel[ix - j + 1][iy - i + 1]); // weight = kernel[a][b], val = sum(weight * source[y * current + x])
                     }                                                        // i - 1 - i + 1 = 0 -> 1 -> 2, j - 1 - j + 1 = 0 -> 1 -> 2
                 }

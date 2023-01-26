@@ -31,7 +31,7 @@ namespace GaussianBlurImplementator
 
             Console.WriteLine(consoleLog);
 
-            var currentNumberOfThreads = 2;
+            var currentNumberOfThreads = 0.5;
 
             for (int k = 0; k < 7; k++)
             {
@@ -66,7 +66,7 @@ namespace GaussianBlurImplementator
                         var manager = new DllExecutionManager(bitmap);
 
                         var sw = Stopwatch.StartNew();
-                        manager.ProcessBitmap(3);
+                        manager.ProcessBitmap();
                         var timeElapsed = sw.ElapsedMilliseconds;
                         meanBlurTime += timeElapsed;
 
