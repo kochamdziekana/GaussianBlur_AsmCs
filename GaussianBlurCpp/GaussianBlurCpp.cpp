@@ -13,6 +13,10 @@ extern "C" {
                              2, 4, 2,
                              1, 2, 1 };
         
+        // k1 = (kernel[0],kernel[1],kernel[2],0)
+        // k2 = (kernel[3],kernel[4],kernel[5],0)
+        // k3 = (kernel[6],kernel[7],kernel[8],0)
+
 
         for (int i = offset; i < height; i++)
             for (int j = 0; j < width; j++)
@@ -29,7 +33,9 @@ extern "C" {
                         if (width - 1 < x) {
                             x = width - 1;
                         }
-
+                        // v1 = (source[y * width + x], source[y * width + x + 1], source[y * width + x + 2], 0)
+                        // v2 = (source[y * width + x], source[y * width + x + 1], source[y * width + x + 2], 0) y += 1
+                        // v3 = (source[y * width + x], source[y * width + x + 1], source[y * width + x + 2], 0) y += 2
 
                         int y = 0;
                         if (iy > 0) {
@@ -42,7 +48,16 @@ extern "C" {
                     }                                                        // i - 1 - i + 1 = 0 -> 1 -> 2, j - 1 - j + 1 = 0 -> 1 -> 2
                 }
 
+                // z1 = v1 * k1
+                // z2 = v2 * k2
+                // z3 = v3 * k3
+                // z1 = z1 + z2
+                // z1 = z1 + z3
+                // z1 = haddps(z1)
+                // z1 = haddps(z1)
+
                 destination[i * width + j] = (unsigned char)((int)val >> 4);
+                // destination[i * width + j] = (int)(z1 >> 4);
             }
     }
 
