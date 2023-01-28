@@ -1,149 +1,175 @@
 .code
-BlurOneAsm PROC               ; BlurTarget
+BlurOneAsm PROC
+;ix = 0 ; r10d
+;x = 4
+;iy = 8 ; r11d
+;y = 12
+;j = 16
+;i = 20
+;kernel = 24
+;array = 64
+;source = 96
+;destination = 104
+;width = 112
+;height = 120
+;offset = 128
 Begin_blur:
-        mov     DWORD PTR [rsp+32], r9d     ; od³o¿enie wysokoœci na stos
-        mov     DWORD PTR [rsp+24], r8d     ; od³o¿enie szerokoœci na stos
-        mov     QWORD PTR [rsp+16], rdx     ; od³o¿enie wskaŸnika na tablicê docelow¹ (obraz wynikowy)
-        mov     QWORD PTR [rsp+8], rcx      ; od³o¿enie wskaŸnika na tablicê Ÿród³ow¹ (obraz Ÿród³owy)
-        sub     rsp, 88                     ; zarezerwowanie pamiêci na stosie
-        mov     QWORD PTR [rsp+72], rax     ; reserve place for the last spot of the table
-        mov     DWORD PTR [rsp+32], 1       ; set kernel value on stack
-        mov     DWORD PTR [rsp+36], 2       ; set kernel value on stack
-        mov     DWORD PTR [rsp+40], 1       ; set kernel value on stack
-        mov     DWORD PTR [rsp+44], 2       ; set kernel value on stack
-        mov     DWORD PTR [rsp+48], 4       ; set kernel value on stack
-        mov     DWORD PTR [rsp+52], 2       ; set kernel value on stack
-        mov     DWORD PTR [rsp+56], 1       ; set kernel value on stack
-        mov     DWORD PTR [rsp+60], 2       ; set kernel value on stack
-        mov     DWORD PTR [rsp+64], 1       ; set kernel value on stack
-        mov     DWORD PTR [rsp+132], 0
-        mov     DWORD PTR [rsp+136], 0
-        mov     DWORD PTR [rsp+140], 0
-        pinsrd  xmm0, DWORD PTR [rsp+32], 0
-        pinsrd  xmm0, DWORD PTR [rsp+36], 1
-        pinsrd  xmm0, DWORD PTR [rsp+40], 2
-        pinsrd  xmm0, DWORD PTR [rsp+132], 3 ; load three xmms 
-        pinsrd  xmm1, DWORD PTR [rsp+44], 0
-        pinsrd  xmm1, DWORD PTR [rsp+48], 1
-        pinsrd  xmm1, DWORD PTR [rsp+52], 2
-        pinsrd  xmm1, DWORD PTR [rsp+136], 3
-        pinsrd  xmm2, DWORD PTR [rsp+56], 0
-        pinsrd  xmm2, DWORD PTR [rsp+60], 1
-        pinsrd  xmm2, DWORD PTR [rsp+54], 2
-        pinsrd  xmm2, DWORD PTR [rsp+140], 3
+        mov     DWORD PTR [rsp+32], r9d     ; can use this as a register, not a variable on stack, height
+        mov     DWORD PTR [rsp+24], r8d     ; can use this as a register, not a variable on stack, width
+        mov     QWORD PTR [rsp+16], rdx
+        mov     QWORD PTR [rsp+8], rcx
+        sub     rsp, 88 
+        mov     QWORD PTR [rsp+64], rax     ; reserve spot for table
+        mov     DWORD PTR [rsp+24], 1       ; put 1 on stack
+        mov     DWORD PTR [rsp+28], 2       ; put 2 on stack
+        mov     DWORD PTR [rsp+32], 1       ; put 1 on stack
+        mov     DWORD PTR [rsp+36], 2       ; put 2 on stack
+        mov     DWORD PTR [rsp+40], 4       ; put 4 on stack
+        mov     DWORD PTR [rsp+44], 2       ; put 2 on stack
+        mov     DWORD PTR [rsp+48], 1       ; put 1 on stack
+        mov     DWORD PTR [rsp+52], 2       ; put 2 on stack
+        mov     DWORD PTR [rsp+56], 1       ; put 1 on stack
+        
+        xorpd   xmm0, xmm0                  ; clear xmm0
+        xorpd   xmm1, xmm1                  ; clear xmm1
+        xorpd   xmm2, xmm2                  ; clear xmm2
+
+        pinsrd  xmm0, DWORD PTR [rsp+24], 0 ; fill xmm0 with first row of a kernel
+        pinsrd  xmm0, DWORD PTR [rsp+28], 1
+        pinsrd  xmm0, DWORD PTR [rsp+32], 2
+        pinsrd  xmm1, DWORD PTR [rsp+36], 0 ; fill xmm1 with second row of a kernel
+        pinsrd  xmm1, DWORD PTR [rsp+40], 1
+        pinsrd  xmm1, DWORD PTR [rsp+44], 2
+        pinsrd  xmm2, DWORD PTR [rsp+48], 0 ; fill xmm2 with third row of a kernel
+        pinsrd  xmm2, DWORD PTR [rsp+52], 1
+        pinsrd  xmm2, DWORD PTR [rsp+56], 2
+
         mov     eax, DWORD PTR [rsp+128]    ; eax <- offset
-        mov     DWORD PTR [rsp], eax        
-        jmp     SHORT Compare_i_loop
-Increment_i_loop:
-        mov     eax, DWORD PTR [rsp]        ; eax int i = offset; i < height; i++)
-        inc     eax                         ; increment i i++
-        mov     DWORD PTR [rsp], eax        ; load incremented on stack
-Compare_i_loop:
-        mov     eax, r9d                    ; eax <- height
-        cmp     DWORD PTR [rsp], eax        ; height == i
-        jge     Finish                      ; if height > i -> go to end
-        mov     DWORD PTR [rsp+4], 0        ; j = 0
-        jmp     SHORT Compare_j_loop        ; go to loop with j - width comparison
-Increment_j:
-        mov     eax, DWORD PTR [rsp+4]
-        inc     eax
-        mov     DWORD PTR [rsp+4], eax
-Compare_j_loop:
-        mov     eax, DWORD PTR [rsp+112]    ; eax <- width
-        cmp     DWORD PTR [rsp+4], eax      ; j == width
-        jge     Increment_i_loop            ; if width > j ->
-        xorps   xmm0, xmm0                  ; clear xmm0
-        movsd   QWORD PTR [rsp+24], xmm0    ; set value 0 on stack (sum of values of pixels = 0 on start)
-        mov     eax, DWORD PTR [rsp]        ; iy = i
-        dec     eax                         ; iy -= 1
-        mov     DWORD PTR [rsp+12], eax     ; put iy on stack
-        jmp     SHORT Compare_iy_loop
-Increment_iy:
-        mov     eax, DWORD PTR [rsp+12]     ; eax <- iy
-        inc     eax                         ; iy++
-        mov     DWORD PTR [rsp+12], eax     ; iy <- eax
-Compare_iy_loop:
-        mov     eax, DWORD PTR [rsp]        ; eax <- i
-        add     eax, 2                      ; i += 2
-        cmp     DWORD PTR [rsp+12], eax     ; iy == i 
-        jge     Set_pixel_value             ; if iy < i + 2 -> add value divided by 
-        mov     eax, DWORD PTR [rsp+4]      ; eax <- j
-        dec     eax                         ; j--
-        mov     DWORD PTR [rsp+8], eax      ; ix <- eax
-        jmp     SHORT Min_max_x_ix
-Increment_ix:
-        mov     eax, DWORD PTR [rsp+8]      ; eax <- ix
-        inc     eax                         ; ix++
-        mov     DWORD PTR [rsp+8], eax      ; ix <- eax
-Min_max_x_ix:
-        mov     eax, DWORD PTR [rsp+4]      ; eax <- j
-        add     eax, 2                      ; j += 2
-        cmp     DWORD PTR [rsp+8], eax      ; ix == j
-        jge     Increment_iy
-        mov     DWORD PTR [rsp+20], 0       ; x = 0
-        cmp     DWORD PTR [rsp+8], 0        ; ix == 0
-        jle     SHORT Compare_x_width
-        mov     eax, DWORD PTR [rsp+8]      ; eax <- ix
         mov     DWORD PTR [rsp+20], eax     ; x <- eax
-Compare_x_width:
-        mov     eax, DWORD PTR [rsp+112]    ; eax <- width
+        jmp     SHORT Compare_i_load_j
+Increment_i:
+        mov     eax, DWORD PTR [rsp+20]     ; eax <- i
+        inc     eax
+        mov     DWORD PTR [rsp+20], eax
+Compare_i_load_j:
+        cmp     DWORD PTR [rsp+20], r9d     ; height == i
+        jge     Finish
+        mov     DWORD PTR [rsp+16], 0       ; j = 0
+        jmp     SHORT Compare_j_load_loop
+Increment_j:
+        mov     eax, DWORD PTR [rsp+16]     ; eax <- j
+        inc     eax                         ; eax++
+        mov     DWORD PTR [rsp+16], eax     ; j <- eax
+Compare_j_load_loop:
+        cmp     DWORD PTR [rsp+16], r8d     ; j == width
+        jge     Increment_i
+        mov     eax, DWORD PTR [rsp+20]     ; eax <- i
+        dec     eax                         ; eax--
+        mov     r11d, eax                   ; ix <- i - 1
+        mov     r10d, 0                     ; iy <- 0
+        mov     DWORD PTR [rsp+12], 0       ; y <- 0
+        mov     DWORD PTR [rsp+4], 0        ; x <- 0
+        cmp     r11d, 0                     ; ix == 0
+        jle     SHORT Y_height_mins_comparison_first      
+        mov     DWORD PTR [rsp+12], r11d    ; y <- ix
+Y_height_mins_comparison_first:
+        mov     eax, r9d                    ; eax <- height
+        dec     eax                         ; eax--
+        cmp     eax, DWORD PTR [rsp+12]     ; height - 1 == iy
+        jge     SHORT Ix_loop_beg_first
+        mov     DWORD PTR [rsp+12], eax     ; iy <- height - 1
+Ix_loop_beg_first:
+        mov     eax, DWORD PTR [rsp+16]     ; eax <- j
+        dec     eax                         ; j--
+        mov     r10d, eax                   ; ix = j
+        jmp     SHORT Compare_ix_load_loop_first
+Increment_ix_first:
+        inc     r10d                        ; ix++
+Compare_ix_load_loop_first:
+        mov     eax, DWORD PTR [rsp+16]     ; eax <- j
+        add     eax, 2                      ; j + 2
+        cmp     r10d, eax                   ; ix < j + 2
+        jge     SHORT Increment_iy_first
+        mov     DWORD PTR [rsp+4], 0        ; x = 0
+        cmp     r10d, 0                     ; ix == 0
+        jle     SHORT X_width_mins_comparison_first
+        mov     DWORD PTR [rsp+4], r10d     ; x = ix
+X_width_mins_comparison_first:
+        mov     eax, r8d                    ; eax <- width
         dec     eax                         ; width--
-        cmp     eax, DWORD PTR [rsp+20]     ; x == width
-        jge     SHORT Min_max_y_iy
-        mov     DWORD PTR [rsp+20], eax     ; x = width
-Min_max_y_iy:
-        mov     DWORD PTR [rsp+16], 0       ; int y = 0
-        cmp     DWORD PTR [rsp+12], 0       ; iy > 0
-        jle     SHORT Compare_y_height
-        mov     eax, DWORD PTR [rsp+12]     ; eax <- iy
-        mov     DWORD PTR [rsp+16], eax     ; y <- iy
-Compare_y_height:
+        cmp     eax, DWORD PTR [rsp+4]      ; width - 1 == x
+        jge     SHORT Increment_ix_first
+        mov     DWORD PTR [rsp+4], eax      ; x = width - 1
+Increment_iy_first:
+        inc     r11d                        ; iy++
+        cmp     r11d, 0                     ; iy == 0
+        jle     SHORT Y_height_mins_comparison_second
+        mov     DWORD PTR [rsp+12], r11d    ; y = iy
+Y_height_mins_comparison_second:
         mov     eax, r9d                    ; eax <- height
         dec     eax                         ; height--
-        cmp     eax, DWORD PTR [rsp+16]     ; y == height
-        jge     SHORT Add_to_sum_of_values
-        mov     DWORD PTR [rsp+16], eax     ; y = height
-Add_to_sum_of_values:
-        mov     eax, DWORD PTR [rsp+16]     ; eax <- y
-        imul    eax, DWORD PTR [rsp+112]    ; eax <- y * width
-        add     eax, DWORD PTR [rsp+20]     ; eax + x
-        cdqe                                ; convert to qword
-        mov     rcx, QWORD PTR [rsp+96]     ; rcx <- source table ptr
-        movzx   eax, BYTE PTR [rcx+rax]     ; eax <- dword (from byte
-        mov     ecx, DWORD PTR [rsp+4]      ; ecx <- j
-        mov     edx, DWORD PTR [rsp+8]      ; edx <- ix (ix = j - 1...)
-        sub     edx, ecx                    ; j - 1 - j
-        mov     ecx, edx                    ; ecx <- edx
-        inc     ecx                         ; -1 + 1 .. 0 + 1 .. 1 + 1
-        movsxd  rcx, ecx                    ; rcx <- ecx
-        imul    rcx, rcx, 12                
-        lea     rcx, QWORD PTR [rsp+32+rcx] ; addres of the kernel
-        mov     edx, DWORD PTR [rsp]        ; edx <- i
-        mov     r8d, DWORD PTR [rsp+12]     ; r8d <- iy
-        sub     r8d, edx                    ; iy - i (iy = i - 1)
-        mov     edx, r8d                    ; edx <- r8d
-        inc     edx                         ; -1 + 1 .. 0 + 1 .. 1 + 1
-        movsxd  rdx, edx                    ; rdx <- edx
-        imul    eax, DWORD PTR [rcx+rdx*4]  ; 
-        cvtsi2sd xmm4, eax                  ; cast the value to double
-        movsd   xmm5, QWORD PTR [rsp+24]    ; xmm1 <- current sum
-        addsd   xmm5, xmm4                  ; xmm1 + xmm0 = current sum + value added in this iteration             
-        movsd   QWORD PTR [rsp+24], xmm5    ; sum <- xmm1
-        jmp     Increment_ix
-Set_pixel_value:
-        cvttsd2si rax, QWORD PTR [rsp+24]   ; convert sum to an integer
-        sar     rax, 4                      ; divide by 16 = kernelSum (1 + 2 + 1 + 2 + 4 + 2 + 1 + 2 + 1) 
-        mov     ecx, DWORD PTR [rsp]        ; ecx <- i
-        imul    ecx, DWORD PTR [rsp+112]    ; ecx <- i * width
-        add     ecx, DWORD PTR [rsp+4]      ; ecx <- i * width + j
-        movsxd  rcx, ecx                    ; rcx <- ecx
-        mov     rdx, QWORD PTR [rsp+104]    ; rdx <- destination table address
-        mov     BYTE PTR [rdx+rcx], al      ; lower bits 
-        jmp     Increment_j
+        cmp     eax, DWORD PTR [rsp+12]     ; height - 1 < y
+        jge     SHORT Ix_loop_beg_second
+        mov     DWORD PTR [rsp+12], eax     ; y = height - 1
+Ix_loop_beg_second:
+        mov     eax, DWORD PTR [rsp+16]     ; eax <- j
+        dec     eax                         ; j--
+        mov     r10d, eax                   ; ix = j - 1
+        jmp     SHORT Compare_ix_load_loop_second
+Increment_ix_second:
+        inc     r10d                        ; ix++
+Compare_ix_load_loop_second:
+        mov     eax, DWORD PTR [rsp+16]     ; eax <- j
+        add     eax, 2                      ; j + 2
+        cmp     r10d, eax                   ; ix < j + 2
+        jge     SHORT Increment_iy_second
+        mov     DWORD PTR [rsp+4], 0        ; x = 0
+        cmp     r10d, 0                     ; ix == 0
+        jle     SHORT X_width_mins_comparison_second
+        mov     DWORD PTR [rsp+4], r10d     ; x = ix
+X_width_mins_comparison_second:
+        mov     eax, r8d                    ; eax <- width
+        dec     eax                         ; width--
+        cmp     eax, DWORD PTR [rsp+4]      ; width - 1 < x
+        jge     SHORT Increment_ix_second
+        mov     DWORD PTR [rsp+4], eax      ; x = width - 1
+Increment_iy_second:
+        inc     r11d                        ; iy++
+        cmp     r11d, 0                     ; iy == 0
+        jle     SHORT Y_height_mins_comparison_third
+        mov     DWORD PTR [rsp+12], r11d    ; y = iy
+Y_height_mins_comparison_third:
+        mov     eax, r9d                    ; eax <- height
+        dec     eax                         ; height--
+        cmp     eax, DWORD PTR [rsp+12]     ; height - 1 < y
+        jge     SHORT Ix_loop_beg_third
+        mov     DWORD PTR [rsp+12], eax     ; y = height - 1
+Ix_loop_beg_third:
+        mov     eax, DWORD PTR [rsp+16]     ; eax <- j
+        dec     eax                         ; j--
+        mov     r10d, eax                   ; ix = j - 1
+        jmp     SHORT Compare_ix_load_loop_third
+Increment_ix_third:
+        inc     r10d                        ; ix++
+Compare_ix_load_loop_third:
+        mov     eax, DWORD PTR [rsp+16]     ; eax <- j
+        add     eax, 2                      ; j + 2
+        cmp     r10d, eax                   ; ix < j + 2
+        jge     Increment_j
+        mov     DWORD PTR [rsp+4], 0        ; x = 0
+        cmp     r10d, 0                     ; ix == 0
+        jle     SHORT X_width_mins_comparison_third
+        mov     DWORD PTR [rsp+4], r10d     ; x = ix
+X_width_mins_comparison_third:
+        mov     eax, r8d                    ; eax <- width
+        dec     eax                         ; width--
+        cmp     eax, DWORD PTR [rsp+4]      ; width - 1 < x
+        jge     SHORT Increment_ix_third
+        mov     DWORD PTR [rsp+4], eax      ; x = width - 1
 Finish:
-        mov     rcx, QWORD PTR [rsp+72]     
-        add     rsp, 88         
-        ret 
-BlurOneAsm ENDP                ; BlurTarget
+        mov     rcx, QWORD PTR [rsp+64]
+        add     rsp, 88
+        ret     0
+BlurOneAsm ENDP
 
 END
