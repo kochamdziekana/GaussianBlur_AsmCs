@@ -161,7 +161,7 @@ extern "C" {
 
                 // haddpd xmm9, xmm9
                 // haddpd xmm9, xmm9
-                // pextrd eax, xmm8 -> eax has the sum
+                // pextrd eax, xmm9 -> eax has the sum
                 // sar    eax, 4 -> divide by 16 (kernelSum)
 
 

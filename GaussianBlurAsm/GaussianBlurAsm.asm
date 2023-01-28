@@ -69,6 +69,7 @@ Compare_j_load_loop:
         mov     r10d, 0                     ; iy <- 0
         mov     DWORD PTR [rsp+12], 0       ; y <- 0
         mov     DWORD PTR [rsp+4], 0        ; x <- 0
+        xorpd   xmm7, xmm7                  ; clear xmm7 for first row to be multipiled with kernel first row
         cmp     r11d, 0                     ; ix == 0
         jle     SHORT Y_height_mins_comparison_first      
         mov     DWORD PTR [rsp+12], r11d    ; y <- ix
@@ -98,9 +99,23 @@ X_width_mins_comparison_first:
         mov     eax, r8d                    ; eax <- width
         dec     eax                         ; width--
         cmp     eax, DWORD PTR [rsp+4]      ; width - 1 == x
-        jge     SHORT Increment_ix_first
+        jge     SHORT Add_to_first_vector
         mov     DWORD PTR [rsp+4], eax      ; x = width - 1
+Add_to_first_vector:
+        mov     eax, DWORD PTR[rsp+12]      ; eax <- y
+        imul    eax, r8d                    ; y * width
+        add     eax, DWORD PTR[rsp+4]       ; y * width + x - index of the source to be changed
+        cdqe    
+        mov     rcx, QWORD PTR[rsp+96]      ; rcx <- source
+        movzx   eax, BYTE PTR[rcx+rax]      ; eax <- selected pixel value
+        pinsrb  xmm7, eax, 3                ; move it to fourth position
+        pslld   xmm7, 1                     ; move it left so it makes place for the next value
+        jmp     Increment_ix_first
 Increment_iy_first:
+        xorpd   xmm8, xmm8                  ; clear xmm8 for next use
+        vpmuldq  xmm8, xmm0, xmm7            ; multipy first row of kernel with first row of taken image part
+        vpaddw   xmm9, xmm9, xmm8            ; add to sum in xmm9
+        xorpd   xmm7, xmm7                  ; clear xmm7 for second row to be multipiled with kernel second row
         inc     r11d                        ; iy++
         cmp     r11d, 0                     ; iy == 0
         jle     SHORT Y_height_mins_comparison_second
@@ -131,9 +146,28 @@ X_width_mins_comparison_second:
         mov     eax, r8d                    ; eax <- width
         dec     eax                         ; width--
         cmp     eax, DWORD PTR [rsp+4]      ; width - 1 < x
-        jge     SHORT Increment_ix_second
+        jge     SHORT Add_to_second_vector
         mov     DWORD PTR [rsp+4], eax      ; x = width - 1
+Add_to_second_vector:
+        mov     eax, DWORD PTR[rsp+12]      ; eax <- y
+        imul    eax, r8d                    ; y * width
+        add     eax, DWORD PTR[rsp+4]       ; y * width + x - index of the source to be changed
+        cdqe    
+        mov     rcx, QWORD PTR[rsp+96]      ; rcx <- source
+        movzx   eax, BYTE PTR[rcx+rax]      ; eax <- selected pixel value
+        pinsrb  xmm7, eax, 3                ; move it to fourth position
+        pslld   xmm7, 1                     ; move it left so it makes place for the next value, this works differently
+
+
+
+
+        ; CHANGE THIS PLS, NOT WORKING!!!!
+        jmp     Increment_ix_second
 Increment_iy_second:
+        xorpd   xmm8, xmm8                  ; clear xmm8 for next use
+        vpmuldq xmm8, xmm1, xmm7            ; multipy second row of kernel with second row of taken image part
+        vpaddw  xmm9, xmm9, xmm8            ; add to sum in xmm9
+        xorpd   xmm7, xmm7                  ; clear xmm7 for third row to be multipiled with kernel third row
         inc     r11d                        ; iy++
         cmp     r11d, 0                     ; iy == 0
         jle     SHORT Y_height_mins_comparison_third
@@ -155,7 +189,7 @@ Compare_ix_load_loop_third:
         mov     eax, DWORD PTR [rsp+16]     ; eax <- j
         add     eax, 2                      ; j + 2
         cmp     r10d, eax                   ; ix < j + 2
-        jge     Increment_j
+        jge     Add_values_set_destination  ; there should be label for adding the values and setting the destination, from there to increment_j
         mov     DWORD PTR [rsp+4], 0        ; x = 0
         cmp     r10d, 0                     ; ix == 0
         jle     SHORT X_width_mins_comparison_third
@@ -164,8 +198,30 @@ X_width_mins_comparison_third:
         mov     eax, r8d                    ; eax <- width
         dec     eax                         ; width--
         cmp     eax, DWORD PTR [rsp+4]      ; width - 1 < x
-        jge     SHORT Increment_ix_third
+        jge     SHORT Add_to_third_vector
         mov     DWORD PTR [rsp+4], eax      ; x = width - 1
+Add_to_third_vector:
+        mov     eax, DWORD PTR[rsp+12]      ; eax <- y
+        imul    eax, r8d                    ; y * width
+        add     eax, DWORD PTR[rsp+4]       ; y * width + x - index of the source to be changed
+        cdqe    
+        mov     rcx, QWORD PTR[rsp+96]      ; rcx <- source
+        movzx   eax, BYTE PTR[rcx+rax]      ; eax <- selected pixel value
+        pinsrb  xmm7, eax, 3                ; move it to fourth position
+        pslld   xmm7, 1                     ; move it left so it makes place for the next value
+        jmp     Increment_ix_third
+Add_values_set_destination:
+        haddpd  xmm9, xmm9                  ; add first to second and third to fourth (0)
+        haddpd  xmm9, xmm9                  ; add firstSecond to thirdFourth
+        pextrd  eax, xmm9, 0
+        sar     eax, 4
+        mov     ecx, DWORD PTR[rsp+20]      ; eax <- i
+        imul    ecx, r8d                    ; i * width
+        add     ecx, DWORD PTR[rsp+16]      ; i * width + j
+        movsxd  rcx, ecx
+        mov     rdx, QWORD PTR[rsp+104]
+        mov     BYTE PTR[rdx+rcx], al
+        jmp     Increment_j        
 Finish:
         mov     rcx, QWORD PTR [rsp+64]
         add     rsp, 88
