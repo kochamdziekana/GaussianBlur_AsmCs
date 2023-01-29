@@ -42,7 +42,7 @@ namespace GaussianBlurImplementator
 
                 Console.WriteLine(consoleLog);
 
-                for (int i = 2; i < 11; i++)
+                for (int i = 1; i < 11; i++)
                 {
                     long meanBlurTime = 0;
 
@@ -61,7 +61,7 @@ namespace GaussianBlurImplementator
                     Console.WriteLine($"File path: {filename}");
                     Console.WriteLine($"Bitmap size is: {bitmap.Size}");
 
-                    for (int j = 0; j < 20; j++)
+                    for (int j = 0; j < 50; j++)
                     {
                         var manager = new DllExecutionManager(bitmap);
 
@@ -73,7 +73,7 @@ namespace GaussianBlurImplementator
                         Console.WriteLine($"Try number {j}. It took: {timeElapsed} ms to blur this image.");
                     }
 
-                    Console.WriteLine($"Mean: {meanBlurTime / 20.0} ms.");
+                    Console.WriteLine($"Mean: {meanBlurTime / 50.0} ms.");
 
                 }
             }
