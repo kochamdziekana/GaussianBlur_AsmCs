@@ -57,6 +57,7 @@ Compare_i_load_j:
         mov     DWORD PTR [rsp+16], 0       ; j = 0
         jmp     SHORT Compare_j_load_loop
 Increment_j:
+        xorpd   xmm9, xmm9
         mov     eax, DWORD PTR [rsp+16]     ; eax <- j
         inc     eax                         ; eax++
         mov     DWORD PTR [rsp+16], eax     ; j <- eax
@@ -108,12 +109,12 @@ Add_to_first_vector:
         cdqe    
         mov     rcx, QWORD PTR[rsp+96]      ; rcx <- source
         movzx   eax, BYTE PTR[rcx+rax]      ; eax <- selected pixel value
-        pinsrb  xmm7, eax, 3                ; move it to fourth position
-        pslld   xmm7, 1                     ; move it left so it makes place for the next value
+        pinsrd  xmm7, eax, 3                ; move it to fourth position
+        psrldq  xmm7, 4                     ; move it left so it makes place for the next value
         jmp     Increment_ix_first
 Increment_iy_first:
         xorpd   xmm8, xmm8                  ; clear xmm8 for next use
-        vpmuldq  xmm8, xmm0, xmm7            ; multipy first row of kernel with first row of taken image part
+        vpmulld  xmm8, xmm0, xmm7            ; multipy first row of kernel with first row of taken image part
         vpaddw   xmm9, xmm9, xmm8            ; add to sum in xmm9
         xorpd   xmm7, xmm7                  ; clear xmm7 for second row to be multipiled with kernel second row
         inc     r11d                        ; iy++
@@ -155,17 +156,12 @@ Add_to_second_vector:
         cdqe    
         mov     rcx, QWORD PTR[rsp+96]      ; rcx <- source
         movzx   eax, BYTE PTR[rcx+rax]      ; eax <- selected pixel value
-        pinsrb  xmm7, eax, 3                ; move it to fourth position
-        pslld   xmm7, 1                     ; move it left so it makes place for the next value, this works differently
-
-
-
-
-        ; CHANGE THIS PLS, NOT WORKING!!!!
+        pinsrd  xmm7, eax, 3                ; move it to fourth position
+        psrldq  xmm7, 4                     ; move it left so it makes place for the next value
         jmp     Increment_ix_second
 Increment_iy_second:
         xorpd   xmm8, xmm8                  ; clear xmm8 for next use
-        vpmuldq xmm8, xmm1, xmm7            ; multipy second row of kernel with second row of taken image part
+        vpmulld xmm8, xmm1, xmm7             ; multipy second row of kernel with second row of taken image part
         vpaddw  xmm9, xmm9, xmm8            ; add to sum in xmm9
         xorpd   xmm7, xmm7                  ; clear xmm7 for third row to be multipiled with kernel third row
         inc     r11d                        ; iy++
@@ -207,10 +203,14 @@ Add_to_third_vector:
         cdqe    
         mov     rcx, QWORD PTR[rsp+96]      ; rcx <- source
         movzx   eax, BYTE PTR[rcx+rax]      ; eax <- selected pixel value
-        pinsrb  xmm7, eax, 3                ; move it to fourth position
-        pslld   xmm7, 1                     ; move it left so it makes place for the next value
+        pinsrd  xmm7, eax, 3                ; move it to fourth position
+        psrldq  xmm7, 4                     ; move it left so it makes place for the next value
         jmp     Increment_ix_third
 Add_values_set_destination:
+        xorpd   xmm8, xmm8                  ; clear xmm8 for next use
+        vpmulld  xmm8, xmm2, xmm7             ; multipy second row of kernel with second row of taken image part
+        vpaddw  xmm9, xmm9, xmm8            ; add to sum in xmm9
+        xorpd   xmm7, xmm7                  ; clear xmm7 for third row to be multipiled with kernel third row
         haddpd  xmm9, xmm9                  ; add first to second and third to fourth (0)
         haddpd  xmm9, xmm9                  ; add firstSecond to thirdFourth
         pextrd  eax, xmm9, 0
