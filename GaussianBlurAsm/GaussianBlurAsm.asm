@@ -35,7 +35,6 @@ Begin_blur:
         pinsrd  xmm2, eax, 2
 
         mov     eax, DWORD PTR [rsp+56]     ; eax <- offset
-        mov     eax, DWORD PTR [rsp+56]     ; eax <- offset
         mov     DWORD PTR [rsp], eax        ; x <- eax
         jmp     SHORT Compare_i_load_j
 Increment_i:
